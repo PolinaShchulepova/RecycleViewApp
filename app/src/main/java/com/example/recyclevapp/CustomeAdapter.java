@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,18 +51,21 @@ public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.MyViewHo
         holder.textViewName.setText(filteredList.get(position).getName());
         holder.textViewVersion.setText(filteredList.get(position).getVersion());
         holder.imageView.setImageResource(filteredList.get(position).getImage());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int actualPosition = holder.getAdapterPosition();
-                if (actualPosition != RecyclerView.NO_POSITION) {
-                    DataModel clickedModel = filteredList.get(actualPosition);
-                    Toast.makeText(
-                            v.getContext(),
-                            "You cliked on: " + clickedModel.getName(),
-                            Toast.LENGTH_SHORT
-                    ).show();
+        holder.itemView.setOnClickListener(v -> {
+            int actualPosition = holder.getAdapterPosition();
+            if (actualPosition != RecyclerView.NO_POSITION) {
+                DataModel clickedModel = filteredList.get(actualPosition);
+
+                DetailDialogFragment dialogFragment = DetailDialogFragment.newInstance(
+                        clickedModel.getName(),
+                        clickedModel.getVersion(),
+                        clickedModel.getImage()
+                );
+                if (v.getContext() instanceof AppCompatActivity) {
+                    AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                    dialogFragment.show(activity.getSupportFragmentManager(), "DetailDialog");
                 }
+//
             }
         });
      }
@@ -77,7 +81,7 @@ public class CustomeAdapter extends RecyclerView.Adapter<CustomeAdapter.MyViewHo
             filteredList.addAll(dataSet); // אם אין חיפוש, להחזיר הכל
         } else {
             for (DataModel item : dataSet) {
-                if (item.getName().toLowerCase().contains(text.toLowerCase())) {
+                if (item.getName().toLowerCase().startsWith(text.toLowerCase())) {
                     filteredList.add(item); // הוספת פריטים שמתאימים לחיפוש
                 }
             }
